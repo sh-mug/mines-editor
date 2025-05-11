@@ -119,7 +119,8 @@ function App() {
   return (
     <div className="app-container">
       <div className="left-column">
-        {/* Code Editor */}
+        {/* Code Editor Component */}
+        <h2>Code Editor</h2>
         <textarea
           className="code-editor"
           value={codeString}
@@ -128,19 +129,23 @@ function App() {
         {/* Load Button */}
         <button onClick={handleLoad}>Load</button>
         {errorMessage && <div className="error-message">{errorMessage}</div>}
-        {/* Standard Input */}
+        {/* Standard Input Component */}
+        <h2>Standard Input</h2>
         <textarea className="standard-input" />
-        {/* Standard Output */}
+        {/* Standard Output Component */}
+        <h2>Standard Output</h2>
         <textarea className="standard-output" readOnly />
       </div>
       <div className="right-column">
-        {/* Interpreter Controls */}
+        {/* Interpreter Controls Component */}
+        <h2>Interpreter Controls</h2>
         <div className="interpreter-controls">
           <button>Run</button>
           <button>Step</button>
           <button>Reset</button>
         </div>
-        {/* Board Visualizer */}
+        {/* Board Visualizer Component */}
+        <h2>Board Visualizer</h2>
         <div className="board-visualizer">
           {gameState.field.map((row, i) => (
             <div key={i} className="board-row">
@@ -162,7 +167,8 @@ function App() {
             </div>
           ))}
         </div >
-        {/* Debug Information */}
+        {/* Debug Information Component */}
+        <h2>Debug Information</h2>
         <div className="debug-information">
           {/* TODO: Implement Debug Information */}
         </div>

@@ -37,20 +37,14 @@
 }
 
 .board-visualizer {
-  border: 1px solid #ccc;
-  height: 300px;
+  height: flex;
   margin-bottom: 10px;
 }
 
 .debug-information {
   border: 1px solid #ccc;
   height: 200px;
-}
-
-.board-visualizer {
-  border: 1px solid #ccc;
-  height: 300px;
-  margin-bottom: 10px;
+  margin-top: 10px; /* Add margin to separate from board */
 }
 
 .board-row {
