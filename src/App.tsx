@@ -29,7 +29,7 @@ function App() {
         {/* Code Editor */}
         <textarea
           className="code-editor"
-          value={boardString}
+          value={`${boardString}\n${opsString}`}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => { setBoardString(e.target.value); }}
         />
         {/* Load Button */}
@@ -52,13 +52,23 @@ function App() {
           {gameState.field.map((row, i) => (
             <div key={i} className="board-row">
               {row.map((cell, j) => (
-                <span key={j} className="board-cell">
-                  {cell}
+                <span key={j} className={`board-cell ${
+                    cell === 1 ? 'color-1' :
+                    cell === 2 ? 'color-2' :
+                    cell === 3 ? 'color-3' :
+                    cell === 4 ? 'color-4' :
+                    cell === 5 ? 'color-5' :
+                    cell === 6 ? 'color-6' :
+                    cell === 7 ? 'color-7' :
+                    cell === 8 ? 'color-8' :
+                    ''
+                  }`}>
+                  {cell === 0 ? '' : cell === 9 ? '💣' : cell}
                 </span>
               ))}
             </div>
           ))}
-        </div>
+        </div >
         {/* Debug Information */}
         <div className="debug-information">
           {/* TODO: Implement Debug Information */}

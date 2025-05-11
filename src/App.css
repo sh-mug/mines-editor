@@ -61,5 +61,18 @@
   width: 20px;
   height: 20px;
   border: 1px solid #ccc;
-  text-align: center;
+  background-color: #eee;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+.color-1 { color: dodgerblue; }
+.color-2 { color: limegreen; }
+.color-3 { color: red; }
+.color-4 { color: blue; }
+.color-5 { color: brown; }
+.color-6 { color: aqua; }
+.color-7 { color: black; }
+.color-8 { color: gray; }
