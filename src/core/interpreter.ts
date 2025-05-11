@@ -1,7 +1,26 @@
 import type { CellState, Field, GameState, Operation, Revealed } from './types';
 
-export function parse(boardString: string, opsString: string): GameState {
-  const rows = boardString.trim().split('\n');
+export function parse(codeString: string): GameState {
+  const lines = codeString
+    .trim()
+    .split('\n')
+    .map(line => line.split('#')[0].trim());
+
+  const boardLines = [];
+  const opsLines = [];
+  let isOps = false;
+
+  for (const line of lines) {
+    if (!isOps && /^[.*]+$/.test(line)) {
+      boardLines.push(line);
+    } else if (line.length > 0) {
+      isOps = true;
+      opsLines.push(line);
+    }
+  }
+
+  const rows = boardLines;
+  
   const width = rows[0].trim().length;
   if (!rows.every(row => row.trim().length === width)) {
     throw new Error('Board is not rectangular');
@@ -35,9 +54,7 @@ export function parse(boardString: string, opsString: string): GameState {
     })
   );
 
-  const operations: Operation[] = opsString
-    .trim()
-    .split('\n')
+  const operations: Operation[] = opsLines
     .filter(opString => opString.length > 0)
     .map(opString => {
       const [row, col] = opString.split(',').map(Number);
