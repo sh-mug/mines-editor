@@ -1,0 +1,65 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.left-column {
+  flex: 1;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+}
+
+.right-column {
+  flex: 1;
+  padding: 20px;
+}
+
+.code-editor {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 10px;
+}
+
+.standard-input {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+.standard-output {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+.interpreter-controls {
+  margin-bottom: 10px;
+}
+
+.board-visualizer {
+  border: 1px solid #ccc;
+  height: 300px;
+  margin-bottom: 10px;
+}
+
+.debug-information {
+  border: 1px solid #ccc;
+  height: 200px;
+}
+
+.board-visualizer {
+  border: 1px solid #ccc;
+  height: 300px;
+  margin-bottom: 10px;
+}
+
+.board-row {
+  display: flex;
+}
+
+.board-cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
