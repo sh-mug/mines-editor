@@ -3,13 +3,12 @@ import { parse } from './interpreter';
 
 describe('parse', () => {
   it('should parse a simple board', () => {
-    const boardString = `
+    const codeString = `
 .....
 .....
 .....
 `;
-    const opsString = ``;
-    const result = parse(boardString, opsString);
+    const result = parse(codeString);
     expect(result).toEqual({
       revealed: [
         ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
@@ -29,13 +28,12 @@ describe('parse', () => {
   });
 
   it('should parse a board with mines', () => {
-    const boardString = `
+    const codeString = `
 .....
 ..*..
 ...*.
 `;
-    const opsString = ``;
-    const result = parse(boardString, opsString);
+    const result = parse(codeString);
     expect(result).toEqual({
       revealed: [
         ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
@@ -55,28 +53,25 @@ describe('parse', () => {
   });
 
   it('should throw an error if the board is not rectangular', () => {
-    const boardString = `
+    const codeString = `
 .....
 ..*..
 .....
 ....
 `;
-    const opsString = ``;
-    expect(() => parse(boardString, opsString)).toThrowError(
+    expect(() => parse(codeString)).toThrowError(
       'Board is not rectangular'
     );
   });
 
   it('should parse a simple ops', () => {
-    const boardString = `
+    const codeString = `
 .....
 .....
 .....
-`;
-    const opsString = `
 0,0
 `;
-    const result = parse(boardString, opsString);
+    const result = parse(codeString);
     expect(result).toEqual({
       revealed: [
         ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
