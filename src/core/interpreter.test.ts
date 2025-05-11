@@ -262,3 +262,51 @@ describe('parse', () => {
     expect(newerResult.isFlagMode).toBe(false);
   });
 });
+
+describe('commands', () => {
+  // 開いていないマスを左クリック
+  describe('left click on hidden cell', () => {
+    it('should do nothing if the cell is flagged', () => {});
+    it('should push the number of revealed cells if the cell is 0', () => {});
+    it('should push the number of the cell if the cell is 1-8', () => {});
+    it('should reset the board if the cell is 9', () => {});
+  });
+
+  // 開いていないマスを右クリック
+  describe('right click on hidden cell', () => {
+    it('should swap the top two values on the stack', () => {});
+  });
+
+  // 開いているマスを左クリック
+  describe('left click on revealed cell', () => {
+    it('should pop the top value if the cell is 0', () => {});
+    it('should push 1 if the top value is positive, 0 otherwise if the cell is 1', () => {});
+    it('should duplicate the top value if the cell is 2', () => {});
+    it('should push the sum of the top two values if the cell is 3', () => {});
+    it('should push the difference of the top two values if the cell is 4', () => {});
+    it('should push the product of the top two values if the cell is 5', () => {});
+    it('should push the quotient of the top two values if the cell is 6', () => {});
+    it('should push the remainder of the top two values if the cell is 7', () => {});
+    it('should perform the operation at the given coordinates if the cell is 8', () => {});
+  });
+
+  // 開いているマスを右クリック
+  describe('right click on revealed cell', () => {
+    describe('chord', () => {
+      it('should push the sum of the numbers on the revealed cells if successful', () => {});
+      it('should reset the board and stack if game over', () => {});
+    });
+
+    describe('otherwise', () => {
+      it('should push 0 if the cell is 0', () => {});
+      it('should push 1 if the top value is 0, 1 otherwise if the cell is 1', () => {});
+      it('should roll the stack if the cell is 2', () => {});
+      it('should push the parsed integer from standard input if the cell is 3', () => {});
+      it('should push the unicode value of the character from standard input if the cell is 4', () => {});
+      it('should output the top value to standard output if the cell is 5', () => {});
+      it('should output the character with the unicode value of the top value to standard output if the cell is 6', () => {});
+      it('should skip the next operation by the top value if the cell is 7', () => {});
+      it('should perform the operation at the given coordinates if the cell is 8', () => {});
+    });
+  });
+});
