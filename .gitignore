@@ -26,3 +26,4 @@ dist-ssr
 # Cline
 .clinerules
 .cline/*
+dist
