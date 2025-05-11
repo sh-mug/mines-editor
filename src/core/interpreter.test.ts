@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { flagCell, parse, revealCell } from './interpreter';
+import { flagCell, handleLeftClick, handleRightClick, parse, revealCell, toggleFlagMode } from './interpreter';
 
 describe('parse', () => {
   it('should parse a simple board', () => {
@@ -180,5 +180,85 @@ describe('parse', () => {
       { type: 'noop' },
       { type: 'leftClick', row: 0, col: 0 },
     ]);
+  });
+
+  it('should toggle a flag on a cell when right clicked again', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+0;0
+`;
+    const result = parse(codeString);
+    const newResult = flagCell(result, 0, 0);
+    const newerResult = flagCell(newResult, 0, 0);
+    expect(newerResult.revealed[0][0]).toBe('hidden');
+  });
+
+  it('should reveal a cell when left clicked and not in flag mode', () => {
+    const codeString = `
+.....
+.....
+.....
+0,0
+`;
+    const result = parse(codeString);
+    const newResult = handleLeftClick(result, 0, 0);
+    expect(newResult.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should flag a cell when left clicked and in flag mode', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+0,0
+`;
+    const result = parse(codeString);
+    const toggledResult = toggleFlagMode(result);
+    const finalResult = handleLeftClick(toggledResult, 0, 0);
+    expect(finalResult.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should reveal a cell when right clicked and in flag mode', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+0;0
+`;
+    const result = parse(codeString);
+    const toggledResult = toggleFlagMode(result);
+    const finalResult = handleRightClick(toggledResult, 0, 0);
+    expect(finalResult.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should flag a cell when right clicked and not in flag mode', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+`;
+    const result = parse(codeString);
+    const newResult = handleRightClick(result, 0, 0);
+    expect(newResult.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should toggle flag mode', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+`;
+    const result = parse(codeString);
+    const newResult = toggleFlagMode(result);
+    expect(newResult.isFlagMode).toBe(true);
+    const newerResult = toggleFlagMode(newResult);
+    expect(newerResult.isFlagMode).toBe(false);
   });
 });

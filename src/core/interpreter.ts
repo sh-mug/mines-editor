@@ -37,13 +37,40 @@ export function flagCell(gameState: GameState, row: number, col: number): GameSt
   const newRevealed = gameState.revealed.map((rowArray, rowIndex) => {
     return rowArray.map((cellState, colIndex) => {
       if (rowIndex === row && colIndex === col) {
-        return 'flagged' as CellState;
+        switch (cellState) {
+          case 'hidden':
+            return 'flagged' as CellState;
+          case 'flagged':
+            return 'hidden' as CellState;
+          default:
+            return cellState;
+        }
       }
       return cellState;
     });
   });
 
   return { ...gameState, revealed: newRevealed };
+}
+
+export function handleLeftClick(gameState: GameState, row: number, col: number): GameState {
+  if (!gameState.isFlagMode) {  // If not in flag mode (default)
+    return revealCell(gameState, row, col);
+  } else {  // If in flag mode
+    return flagCell(gameState, row, col);
+  }
+}
+
+export function handleRightClick(gameState: GameState, row: number, col: number): GameState {
+  if (!gameState.isFlagMode) {  // If not in flag mode (default)
+    return flagCell(gameState, row, col);
+  } else {  // If in flag mode
+    return revealCell(gameState, row, col);
+  }
+}
+
+export function toggleFlagMode(gameState: GameState): GameState {
+  return { ...gameState, isFlagMode: !gameState.isFlagMode };
 }
 
 export function parse(codeString: string): GameState {
