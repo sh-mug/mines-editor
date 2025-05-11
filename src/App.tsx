@@ -117,60 +117,62 @@ function App() {
   }, []);
 
   return (
-    <div className="app-container">
-      <div className="left-column">
-        {/* Code Editor Component */}
-        <h2>Code Editor</h2>
-        <textarea
-          className="code-editor"
-          value={codeString}
-          onChange={handleCodeChange}
-        />
-        {/* Load Button */}
-        <button onClick={handleLoad}>Load</button>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-        {/* Standard Input Component */}
-        <h2>Standard Input</h2>
-        <textarea className="standard-input" />
-        {/* Standard Output Component */}
-        <h2>Standard Output</h2>
-        <textarea className="standard-output" readOnly />
-      </div>
-      <div className="right-column">
-        {/* Interpreter Controls Component */}
-        <h2>Interpreter Controls</h2>
-        <div className="interpreter-controls">
-          <button>Run</button>
-          <button>Step</button>
-          <button>Reset</button>
+    <div className="app-wrapper">
+      <h1 className="main-title">Mines Web Interpreter</h1>
+      <div className="app-container">
+        <div className="left-column">
+          {/* Code Editor Component */}
+          <h2>Code Editor</h2>
+          <textarea
+            className="code-editor"
+            value={codeString}
+            onChange={handleCodeChange}
+          />
+          {/* Load Button */}
+          <button onClick={handleLoad}>Load</button>
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
+          {/* Standard Input Component */}
+          <h2>Standard Input</h2>
+          <textarea className="standard-input" />
+          {/* Standard Output Component */}
+          <h2>Standard Output</h2>
+          <textarea className="standard-output" readOnly />
         </div>
-        {/* Board Visualizer Component */}
-        <h2>Board Visualizer</h2>
-        <div className="board-visualizer">
-          {gameState.field.map((row, i) => (
-            <div key={i} className="board-row">
-              {row.map((cell, j) => (
-                <span key={j} className={`board-cell ${
-                    cell === 1 ? 'color-1' :
-                    cell === 2 ? 'color-2' :
-                    cell === 3 ? 'color-3' :
-                    cell === 4 ? 'color-4' :
-                    cell === 5 ? 'color-5' :
-                    cell === 6 ? 'color-6' :
-                    cell === 7 ? 'color-7' :
-                    cell === 8 ? 'color-8' :
-                    ''
-                  }`}>
-                  {cell === 0 ? '' : cell === 9 ? '💣' : cell}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div >
-        {/* Debug Information Component */}
-        <h2>Debug Information</h2>
-        <div className="debug-information">
-          {/* TODO: Implement Debug Information */}
+        <div className="right-column">
+          {/* Interpreter Controls Component */}
+          <h2>Interpreter Controls</h2>
+          <div className="interpreter-controls">
+            <button>Run</button>
+            <button>Step</button>
+            <button>Reset</button>
+          </div>
+          {/* Board Visualizer Component */}
+          <h2>Board Visualizer</h2>
+          <div className="board-visualizer">
+            {gameState.field.map((row, i) => (
+              <div key={i} className="board-row">
+                {row.map((cell, j) => (
+                  <span key={j} className={`board-cell ${cell === 1 ? 'color-1' :
+                      cell === 2 ? 'color-2' :
+                      cell === 3 ? 'color-3' :
+                      cell === 4 ? 'color-4' :
+                      cell === 5 ? 'color-5' :
+                      cell === 6 ? 'color-6' :
+                      cell === 7 ? 'color-7' :
+                      cell === 8 ? 'color-8' :
+                      ''
+                    }`}>
+                    {cell === 0 ? '' : cell === 9 ? '💣' : cell}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div >
+          {/* Debug Information Component */}
+          <h2>Debug Information</h2>
+          <div className="debug-information">
+            {/* TODO: Implement Debug Information */}
+          </div>
         </div>
       </div>
     </div>

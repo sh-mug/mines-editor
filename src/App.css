@@ -1,6 +1,14 @@
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-title {
+  margin-left: 20px;
+}
+
 .app-container {
   display: flex;
-  height: 100vh;
 }
 
 .left-column {
