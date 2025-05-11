@@ -8,7 +8,7 @@ function App() {
 ..*..
 .....
 `);
-  const [opsString, setOpsString] = useState(`
+  const [opsString] = useState(`
 0,0
 `);
   const [gameState, setGameState] = useState({ revealed: [['hidden']], field: [[0]], stack: [], opIndex: 0, isFlagMode: false, operations: [] } as GameState);
