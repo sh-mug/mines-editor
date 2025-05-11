@@ -13,7 +13,7 @@ export function parse(codeString: string): GameState {
   for (const line of lines) {
     if (!isOps && /^[.*]+$/.test(line)) {
       boardLines.push(line);
-    } else if (line.length > 0) {
+    } else {
       isOps = true;
       opsLines.push(line);
     }
@@ -55,10 +55,17 @@ export function parse(codeString: string): GameState {
   );
 
   const operations: Operation[] = opsLines
-    .filter(opString => opString.length > 0)
     .map(opString => {
-      const [row, col] = opString.split(',').map(Number);
-      return { type: 'leftClick', row, col };
+      if (opString === '!') {
+        return { type: 'toggleFlagMode' };
+      } else if (opString.trim().length === 0) {
+        return { type: 'noop' };
+      } else {
+        const separator = opString.includes(',') ? ',' : ';';
+        const [row, col] = opString.split(separator).map(Number);
+        const type = separator === ',' ? 'leftClick' : 'rightClick';
+        return { type, row, col };
+      }
     });
 
   return {

@@ -7,7 +7,8 @@ export type Field = number[][];
 export type Operation =
   | { type: 'leftClick'; row: number; col: number }
   | { type: 'rightClick'; row: number; col: number }
-  | { type: 'toggleFlagMode' };
+  | { type: 'toggleFlagMode' }
+  | { type: 'noop' };
 
 export interface GameState {
   revealed: Revealed;

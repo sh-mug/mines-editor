@@ -91,4 +91,44 @@ describe('parse', () => {
       ]
     });
   });
+
+  it('should parse a right click op', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+`;
+    const result = parse(codeString);
+    expect(result.operations).toEqual([
+      { type: 'rightClick', row: 0, col: 0 },
+    ]);
+  });
+
+  it('should parse a toggle flag mode op', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+`;
+    const result = parse(codeString);
+    expect(result.operations).toEqual([
+      { type: 'toggleFlagMode' },
+    ]);
+  });
+
+  it('should parse a noop op', () => {
+    const codeString = `
+.....
+.....
+.....
+
+0,0`;
+    const result = parse(codeString);
+    expect(result.operations).toEqual([
+      { type: 'noop' },
+      { type: 'leftClick', row: 0, col: 0 },
+    ]);
+  });
 });
