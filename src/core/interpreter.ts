@@ -1,5 +1,51 @@
 import type { CellState, Field, GameState, Operation, Revealed } from './types';
 
+function revealAdjacentCells(gameState: GameState, row: number, col: number): GameState {
+  let newGameState = { ...gameState };
+  for (let ni = row - 1; ni <= row + 1; ni++) {
+    for (let nj = col - 1; nj <= col + 1; nj++) {
+      if (ni >= 0 && ni < newGameState.revealed.length && nj >= 0 && nj < newGameState.revealed[0].length) {
+        if (newGameState.revealed[ni][nj] === 'hidden') {
+          newGameState = revealCell(newGameState, ni, nj);
+        }
+      }
+    }
+  }
+  return newGameState;
+}
+
+export function revealCell(gameState: GameState, row: number, col: number): GameState {
+  let newRevealed = gameState.revealed.map((rowArray, rowIndex) => {
+    return rowArray.map((cellState, colIndex) => {
+      if (rowIndex === row && colIndex === col) {
+        return 'revealed' as CellState;
+      }
+      return cellState;
+    });
+  });
+
+  let newGameState = { ...gameState, revealed: newRevealed };
+
+  if (gameState.field[row][col] === 0) {
+    newGameState = revealAdjacentCells(newGameState, row, col);
+  }
+
+  return newGameState;
+}
+
+export function flagCell(gameState: GameState, row: number, col: number): GameState {
+  const newRevealed = gameState.revealed.map((rowArray, rowIndex) => {
+    return rowArray.map((cellState, colIndex) => {
+      if (rowIndex === row && colIndex === col) {
+        return 'flagged' as CellState;
+      }
+      return cellState;
+    });
+  });
+
+  return { ...gameState, revealed: newRevealed };
+}
+
 export function parse(codeString: string): GameState {
   const lines = codeString
     .trim()

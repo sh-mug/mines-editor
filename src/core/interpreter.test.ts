@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parse } from './interpreter';
+import { flagCell, parse, revealCell } from './interpreter';
 
 describe('parse', () => {
   it('should parse a simple board', () => {
@@ -25,6 +25,56 @@ describe('parse', () => {
       isFlagMode: false,
       operations: [],
     });
+  });
+
+  it('should reveal a cell when left clicked', () => {
+    const codeString = `
+.....
+.....
+.....
+0,0
+`;
+    const result = parse(codeString);
+    const newResult = revealCell(result, 0, 0);
+    expect(newResult.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should flag a cell when right clicked', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+`;
+    const result = parse(codeString);
+    const newResult = flagCell(result, 0, 0);
+    expect(newResult.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should reveal adjacent cells when left clicked on a cell with no adjacent mines', () => {
+    const codeString = `
+.....
+.....
+.....
+0,0
+`;
+    const result = parse(codeString);
+    const newResult = revealCell(result, 0, 0);
+    expect(newResult.revealed[0][0]).toBe('revealed');
+    expect(newResult.revealed[0][1]).toBe('revealed');
+    expect(newResult.revealed[0][2]).toBe('revealed');
+    expect(newResult.revealed[0][3]).toBe('revealed');
+    expect(newResult.revealed[0][4]).toBe('revealed');
+    expect(newResult.revealed[1][0]).toBe('revealed');
+    expect(newResult.revealed[1][1]).toBe('revealed');
+    expect(newResult.revealed[1][2]).toBe('revealed');
+    expect(newResult.revealed[1][3]).toBe('revealed');
+    expect(newResult.revealed[1][4]).toBe('revealed');
+    expect(newResult.revealed[2][0]).toBe('revealed');
+    expect(newResult.revealed[2][1]).toBe('revealed');
+    expect(newResult.revealed[2][2]).toBe('revealed');
+    expect(newResult.revealed[2][3]).toBe('revealed');
+    expect(newResult.revealed[2][4]).toBe('revealed');
   });
 
   it('should parse a board with mines', () => {
