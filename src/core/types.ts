@@ -17,4 +17,8 @@ export interface GameState {
   opIndex: number;
   isFlagMode: boolean;
   operations: Operation[];
+  inputString: string;
+  outputString: string;
+  addMessage: (message: string) => void;
+  debugMessages: string[];
 }

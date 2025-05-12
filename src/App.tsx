@@ -1,7 +1,6 @@
-import type { ChangeEvent } from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import './App.css';
-import { parse } from './core/interpreter';
+import { parse } from "./core/interpreter";
 import type { GameState } from './core/types';
 
 function App() {
@@ -96,7 +95,22 @@ function App() {
 11;3  #out(c)
 14,-1 #push2
 -1,-2 #push2, exit`);
-  const [gameState, setGameState] = useState({ revealed: [['hidden']], field: [[0]], stack: [], opIndex: 0, isFlagMode: false, operations: [] } as GameState);
+  const [messages, setMessages] = useState<string[]>([]);
+  const addMessage = useCallback((message: string) => {
+    setMessages(prevMessages => [...prevMessages, message]);
+  }, [setMessages]);
+  const [gameState, setGameState] = useState<GameState>({
+    revealed: [['hidden']],
+    field: [[0]],
+    stack: [],
+    opIndex: 0,
+    isFlagMode: false,
+    operations: [],
+    inputString: '',
+    outputString: '',
+    addMessage: addMessage,
+    debugMessages: [],
+  });
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleCodeChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -105,7 +119,7 @@ function App() {
 
   const handleLoad = () => {
     try {
-      setGameState(parse(codeString));
+      setGameState(parse(codeString, addMessage));
       setErrorMessage('');
     } catch (e: any) {
       setErrorMessage(e.message);
@@ -133,10 +147,18 @@ function App() {
           {errorMessage && <div className="error-message">{errorMessage}</div>}
           {/* Standard Input Component */}
           <h2>Standard Input</h2>
-          <textarea className="standard-input" />
+          <textarea
+            className="standard-input"
+            value={gameState.inputString}
+            onChange={(e) => setGameState({ ...gameState, inputString: e.target.value })}
+          />
           {/* Standard Output Component */}
           <h2>Standard Output</h2>
-          <textarea className="standard-output" readOnly />
+          <textarea
+            className="standard-output"
+            value={gameState.outputString}
+            readOnly
+          />
         </div>
         <div className="right-column">
           {/* Interpreter Controls Component */}
@@ -171,7 +193,9 @@ function App() {
           {/* Debug Information Component */}
           <h2>Debug Information</h2>
           <div className="debug-information">
-            {/* TODO: Implement Debug Information */}
+            {messages.map((message, index) => (
+              <div key={index}>{message}</div>
+            ))}
           </div>
         </div>
       </div>

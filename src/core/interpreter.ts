@@ -73,7 +73,7 @@ export function toggleFlagMode(gameState: GameState): GameState {
   return { ...gameState, isFlagMode: !gameState.isFlagMode };
 }
 
-export function parse(codeString: string): GameState {
+export function parse(codeString: string, addMessage: (message: string) => void): GameState {
   const lines = codeString
     .trim()
     .split('\n')
@@ -148,5 +148,35 @@ export function parse(codeString: string): GameState {
     opIndex: 0,
     isFlagMode: false,
     operations: operations,
+    inputString: '',
+    outputString: '',
+    addMessage,
+    debugMessages: [],
   };
+}
+
+export function step(gameState: GameState): GameState {
+  if (gameState.operations.length <= gameState.opIndex) {
+    return gameState;
+  }
+
+  const operation = gameState.operations[gameState.opIndex];
+  gameState.opIndex++;
+
+  switch (operation.type) {
+    case 'leftClick':
+      gameState.addMessage(`leftClick ${operation.row}, ${operation.col}`);
+      return handleLeftClick(gameState, operation.row, operation.col);
+    case 'rightClick':
+      gameState.addMessage(`rightClick ${operation.row}, ${operation.col}`);
+      return handleRightClick(gameState, operation.row, operation.col);
+    case 'toggleFlagMode':
+      gameState.addMessage('toggleFlagMode');
+      return toggleFlagMode(gameState);
+    case 'noop':
+      gameState.addMessage('noop');
+      return gameState;
+    default:
+      return gameState;
+  }
 }

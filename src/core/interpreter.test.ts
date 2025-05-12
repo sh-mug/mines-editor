@@ -8,7 +8,7 @@ describe('parse', () => {
 .....
 .....
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     expect(result).toEqual({
       revealed: [
         ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
@@ -24,6 +24,10 @@ describe('parse', () => {
       opIndex: 0,
       isFlagMode: false,
       operations: [],
+      inputString: '',
+      outputString: '',
+      addMessage: expect.any(Function),
+      debugMessages: [],
     });
   });
 
@@ -34,7 +38,7 @@ describe('parse', () => {
 .....
 0,0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = revealCell(result, 0, 0);
     expect(newResult.revealed[0][0]).toBe('revealed');
   });
@@ -46,7 +50,7 @@ describe('parse', () => {
 .....
 0;0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = flagCell(result, 0, 0);
     expect(newResult.revealed[0][0]).toBe('flagged');
   });
@@ -58,7 +62,7 @@ describe('parse', () => {
 .....
 0,0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = revealCell(result, 0, 0);
     expect(newResult.revealed[0][0]).toBe('revealed');
     expect(newResult.revealed[0][1]).toBe('revealed');
@@ -83,7 +87,7 @@ describe('parse', () => {
 ..*..
 ...*.
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     expect(result).toEqual({
       revealed: [
         ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
@@ -99,6 +103,10 @@ describe('parse', () => {
       opIndex: 0,
       isFlagMode: false,
       operations: [],
+      inputString: '',
+      outputString: '',
+      addMessage: expect.any(Function),
+      debugMessages: [],
     });
   });
 
@@ -109,7 +117,7 @@ describe('parse', () => {
 .....
 ....
 `;
-    expect(() => parse(codeString)).toThrowError(
+    expect(() => parse(codeString, () => {})).toThrowError(
       'Board is not rectangular'
     );
   });
@@ -121,7 +129,7 @@ describe('parse', () => {
 .....
 0,0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     expect(result).toEqual({
       revealed: [
         ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
@@ -138,7 +146,11 @@ describe('parse', () => {
       isFlagMode: false,
       operations: [
         { type: 'leftClick', row: 0, col: 0 },
-      ]
+      ],
+      inputString: '',
+      outputString: '',
+      addMessage: expect.any(Function),
+      debugMessages: [],
     });
   });
 
@@ -149,7 +161,7 @@ describe('parse', () => {
 .....
 0;0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     expect(result.operations).toEqual([
       { type: 'rightClick', row: 0, col: 0 },
     ]);
@@ -162,7 +174,7 @@ describe('parse', () => {
 .....
 !
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     expect(result.operations).toEqual([
       { type: 'toggleFlagMode' },
     ]);
@@ -175,7 +187,7 @@ describe('parse', () => {
 .....
 
 0,0`;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     expect(result.operations).toEqual([
       { type: 'noop' },
       { type: 'leftClick', row: 0, col: 0 },
@@ -190,7 +202,7 @@ describe('parse', () => {
 0;0
 0;0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = flagCell(result, 0, 0);
     const newerResult = flagCell(newResult, 0, 0);
     expect(newerResult.revealed[0][0]).toBe('hidden');
@@ -203,7 +215,7 @@ describe('parse', () => {
 .....
 0,0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = handleLeftClick(result, 0, 0);
     expect(newResult.revealed[0][0]).toBe('revealed');
   });
@@ -216,7 +228,7 @@ describe('parse', () => {
 !
 0,0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const toggledResult = toggleFlagMode(result);
     const finalResult = handleLeftClick(toggledResult, 0, 0);
     expect(finalResult.revealed[0][0]).toBe('flagged');
@@ -230,7 +242,7 @@ describe('parse', () => {
 !
 0;0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const toggledResult = toggleFlagMode(result);
     const finalResult = handleRightClick(toggledResult, 0, 0);
     expect(finalResult.revealed[0][0]).toBe('revealed');
@@ -243,7 +255,7 @@ describe('parse', () => {
 .....
 0;0
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = handleRightClick(result, 0, 0);
     expect(newResult.revealed[0][0]).toBe('flagged');
   });
@@ -255,58 +267,10 @@ describe('parse', () => {
 .....
 !
 `;
-    const result = parse(codeString);
+    const result = parse(codeString, () => {});
     const newResult = toggleFlagMode(result);
     expect(newResult.isFlagMode).toBe(true);
     const newerResult = toggleFlagMode(newResult);
     expect(newerResult.isFlagMode).toBe(false);
-  });
-});
-
-describe('commands', () => {
-  // 開いていないマスを左クリック
-  describe('left click on hidden cell', () => {
-    it('should do nothing if the cell is flagged', () => {});
-    it('should push the number of revealed cells if the cell is 0', () => {});
-    it('should push the number of the cell if the cell is 1-8', () => {});
-    it('should reset the board if the cell is 9', () => {});
-  });
-
-  // 開いていないマスを右クリック
-  describe('right click on hidden cell', () => {
-    it('should swap the top two values on the stack', () => {});
-  });
-
-  // 開いているマスを左クリック
-  describe('left click on revealed cell', () => {
-    it('should pop the top value if the cell is 0', () => {});
-    it('should push 1 if the top value is positive, 0 otherwise if the cell is 1', () => {});
-    it('should duplicate the top value if the cell is 2', () => {});
-    it('should push the sum of the top two values if the cell is 3', () => {});
-    it('should push the difference of the top two values if the cell is 4', () => {});
-    it('should push the product of the top two values if the cell is 5', () => {});
-    it('should push the quotient of the top two values if the cell is 6', () => {});
-    it('should push the remainder of the top two values if the cell is 7', () => {});
-    it('should perform the operation at the given coordinates if the cell is 8', () => {});
-  });
-
-  // 開いているマスを右クリック
-  describe('right click on revealed cell', () => {
-    describe('chord', () => {
-      it('should push the sum of the numbers on the revealed cells if successful', () => {});
-      it('should reset the board and stack if game over', () => {});
-    });
-
-    describe('otherwise', () => {
-      it('should push 0 if the cell is 0', () => {});
-      it('should push 1 if the top value is 0, 1 otherwise if the cell is 1', () => {});
-      it('should roll the stack if the cell is 2', () => {});
-      it('should push the parsed integer from standard input if the cell is 3', () => {});
-      it('should push the unicode value of the character from standard input if the cell is 4', () => {});
-      it('should output the top value to standard output if the cell is 5', () => {});
-      it('should output the character with the unicode value of the top value to standard output if the cell is 6', () => {});
-      it('should skip the next operation by the top value if the cell is 7', () => {});
-      it('should perform the operation at the given coordinates if the cell is 8', () => {});
-    });
   });
 });
