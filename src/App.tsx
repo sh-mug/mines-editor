@@ -114,15 +114,24 @@ function App() {
     clickedCol: null,
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
+  const [interval, setStepInterval] = useState(500);
 
   const handleCodeChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setCodeString(event.target.value);
   };
 
+  const handleIntervalChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setStepInterval(1500 - Number(event.target.value));
+  };
+
   const handleLoad = () => {
     try {
-      setGameState(parse(codeString, addMessage));
+      const newGameState = parse(codeString, addMessage);
+      setGameState({...newGameState, inputString: gameState.inputString});
       setErrorMessage('');
+      setMessages([]);
+      setIsRunning(false);
     } catch (e: any) {
       setErrorMessage(e.message);
     }
@@ -131,6 +140,16 @@ function App() {
   useEffect(() => {
     handleLoad();
   }, []);
+
+  useEffect(() => {
+    if (isRunning) {
+      const intervalId = setInterval(() => {
+        setGameState(step(gameState));
+      }, interval);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [isRunning, gameState, interval]);
 
   return (
     <div className="app-wrapper">
@@ -166,9 +185,19 @@ function App() {
           {/* Interpreter Controls Component */}
           <h2>Interpreter Controls</h2>
           <div className="interpreter-controls">
-            <button>Run</button>
+            <button onClick={() => setIsRunning(!isRunning)}>
+              {isRunning ? 'Pause' : 'Run'}
+            </button>
             <button onClick={() => setGameState(step(gameState))}>Step</button>
-            <button>Reset</button>
+            <button onClick={handleLoad}>Reset</button>
+            <label>Speed (ms)</label>
+            <input
+              type="range"
+              min="50"
+              max="1500"
+              value={1500 - interval}
+              onChange={handleIntervalChange}
+            />
           </div>
           {/* Board Visualizer Component */}
           <h2>Board Visualizer</h2>

@@ -42,6 +42,12 @@
 
 .interpreter-controls {
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.interpreter-controls > * {
+  margin-right: 10px;
 }
 
 .board-visualizer {
