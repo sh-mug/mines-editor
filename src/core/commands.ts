@@ -258,7 +258,7 @@ export function printInt(gameState: GameState, addMessage: (message: string) => 
   if (value) {
     let newOutputString = gameState.outputString;
     addMessage(`☑ Printed integer: ${value[0]}`);
-    newOutputString += `${value[0]}\n`;
+    newOutputString += `${value[0]}`;
     return { ...newGameState, outputString: newOutputString };
   }
   return newGameState;

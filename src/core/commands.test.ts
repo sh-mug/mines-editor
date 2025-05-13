@@ -339,7 +339,7 @@ describe('Commands', () => {
       const gameState = { ...initialGameState, stack: [123] };
       const newGameState = Commands.printInt(gameState, addMessage);
       expect(newGameState.stack).toEqual([]);
-      expect(newGameState.outputString).toEqual('123\n');
+      expect(newGameState.outputString).toEqual('123');
     });
 
     test('スタックが空の場合、printIntしてもスタックは変わらないこと', () => {
