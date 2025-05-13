@@ -1,6 +1,7 @@
 .app-wrapper {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .main-title {
@@ -11,10 +12,20 @@
   display: flex;
 }
 
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+  .left-column {
+    border-right: none !important;
+  }
+}
+
 .left-column {
   flex: 1;
   padding: 20px;
   border-right: 1px solid #ccc;
+  min-width: 300px; /* 最小幅を設定 */
 }
 
 .right-column {
