@@ -280,6 +280,11 @@ function App() {
           </div>
         </div>
       </div>
+      <footer style={{ margin: '20px' }}>
+        Interpreter Repository: <a href="https://github.com/sh-mug/mines-editor">https://github.com/sh-mug/mines-editor</a>
+        <br />
+        Language Repository (Specification): <a href="https://github.com/dnek/mines-esolang">https://github.com/dnek/mines-esolang</a>
+      </footer>
     </div>
   );
 }

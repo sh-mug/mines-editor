@@ -67,8 +67,8 @@
 }
 
 .debug-information {
-  height: 200px;
   flex-direction: column;
+  margin-bottom: 0;
 }
 
 .message-info {
