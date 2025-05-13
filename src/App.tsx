@@ -196,8 +196,15 @@ function App() {
                     }
                   }
 
-                  const isClicked = gameState.clickedRow === i && gameState.clickedCol === j;
-                  const clickedStyle = isClicked ? 'clicked-cell' : '';
+                  const { clickedRow: row, clickedCol: col, field, operations, opIndex } = gameState;
+                  const isClicked = row !== null && col !== null &&
+                    ((row % field.length + field.length) % field.length === i) &&
+                    ((col % field[0].length + field[0].length) % field[0].length === j);
+                  const lastOp = operations[opIndex - 1]?.type;
+                  const clickedStyle = isClicked ?
+                    lastOp === 'leftClick' ? 'clicked-cell-left' :
+                    lastOp === 'rightClick' ? 'clicked-cell-right' : ''
+                    : '';
 
                   return (
                     <span key={j} className={`board-cell ${clickedStyle} ${cell === 1 ? 'color-1' :

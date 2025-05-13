@@ -91,8 +91,13 @@
   background-color: rgba(170, 170, 170, 0.8); /* Gray with 90% opacity */
 }
 
-.board-cell.clicked-cell {
+.board-cell.clicked-cell-left {
   border-color: red;
+  border-width: 3px;
+}
+
+.board-cell.clicked-cell-right {
+  border-color: blue;
   border-width: 3px;
 }
 
