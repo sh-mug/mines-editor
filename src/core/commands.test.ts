@@ -13,6 +13,8 @@ const initialGameState: GameState = {
   opIndex: 0,
   addMessage: () => {},
   debugMessages: [],
+  clickedRow: null,
+  clickedCol: null,
 };
 
 describe('Commands', () => {

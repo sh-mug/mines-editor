@@ -1,4 +1,37 @@
+import {
+  add,
+  divide,
+  duplicate,
+  modulo,
+  multiply,
+  not,
+  pop,
+  positive,
+  printChar,
+  printInt,
+  push,
+  readChar,
+  readInt,
+  reverse,
+  roll,
+  subtract,
+  swap
+} from './commands';
 import type { CellState, Field, GameState, Operation, Revealed } from './types';
+
+function countAdjacentFlags(gameState: GameState, row: number, col: number): number {
+  let count = 0;
+  for (let ni = row - 1; ni <= row + 1; ni++) {
+    for (let nj = col - 1; nj <= col + 1; nj++) {
+      if (ni >= 0 && ni < gameState.revealed.length && nj >= 0 && nj < gameState.revealed[0].length) {
+        if (gameState.revealed[ni][nj] === 'flagged') {
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
 
 function revealAdjacentCells(gameState: GameState, row: number, col: number): GameState {
   let newGameState = { ...gameState };
@@ -93,7 +126,7 @@ export function parse(codeString: string, addMessage: (message: string) => void)
   }
 
   const rows = boardLines;
-  
+
   const width = rows[0].trim().length;
   if (!rows.every(row => row.trim().length === width)) {
     throw new Error('Board is not rectangular');
@@ -135,7 +168,7 @@ export function parse(codeString: string, addMessage: (message: string) => void)
         return { type: 'noop' };
       } else {
         const separator = opString.includes(',') ? ',' : ';';
-        const [row, col] = opString.split(separator).map(Number);
+        const [col, row] = opString.split(separator).map(Number);
         const type = separator === ',' ? 'leftClick' : 'rightClick';
         return { type, row, col };
       }
@@ -152,31 +185,234 @@ export function parse(codeString: string, addMessage: (message: string) => void)
     outputString: '',
     addMessage,
     debugMessages: [],
+    clickedRow: null,
+    clickedCol: null,
+  };
+}
+
+// Reset game state (for reset(l))
+function resetGame(gameState: GameState): GameState {
+  const initialRevealed: Revealed = gameState.field.map(row =>
+    row.map(() => 'hidden' as CellState)
+  );
+  return {
+    ...gameState,
+    revealed: initialRevealed,
+    isFlagMode: false, // Flag mode is NOT reset on game over
+    clickedRow: null,
+    clickedCol: null,
+    // stack and opIndex are NOT reset on game over
+  };
+}
+
+// Reset game state and stack (for reset(r))
+function resetGameAndStack(gameState: GameState): GameState {
+  const initialRevealed: Revealed = gameState.field.map(row =>
+    row.map(() => 'hidden' as CellState)
+  );
+  return {
+    ...gameState,
+    revealed: initialRevealed,
+    stack: [], // Stack is reset for reset(r)
+    isFlagMode: false, // Flag mode is NOT reset on game over
+    clickedRow: null,
+    clickedCol: null,
+    // opIndex is NOT reset on game over
   };
 }
 
 export function step(gameState: GameState): GameState {
+  const height = gameState.field.length;
+  const width = gameState.field[0].length;
+
   if (gameState.operations.length <= gameState.opIndex) {
+    gameState.opIndex = 0; // Reset opIndex if it exceeds the length of operations
     return gameState;
   }
 
-  const operation = gameState.operations[gameState.opIndex];
-  gameState.opIndex++;
+  let currentGameState = { 
+    ...gameState, 
+    clickedRow: null as number | null, 
+    clickedCol: null as number | null, 
+  };
+  const operation = currentGameState.operations[currentGameState.opIndex];
 
-  switch (operation.type) {
-    case 'leftClick':
-      gameState.addMessage(`leftClick ${operation.row}, ${operation.col}`);
-      return handleLeftClick(gameState, operation.row, operation.col);
-    case 'rightClick':
-      gameState.addMessage(`rightClick ${operation.row}, ${operation.col}`);
-      return handleRightClick(gameState, operation.row, operation.col);
-    case 'toggleFlagMode':
-      gameState.addMessage('toggleFlagMode');
-      return toggleFlagMode(gameState);
-    case 'noop':
-      gameState.addMessage('noop');
-      return gameState;
+  // Increment opIndex before executing the operation
+  currentGameState.opIndex = (currentGameState.opIndex + 1) % currentGameState.operations.length;
+
+  if (operation.type === 'leftClick' || operation.type === 'rightClick') {
+    currentGameState = { ...currentGameState, clickedRow: operation.row, clickedCol: operation.col };
+  }
+
+  const addMessage = currentGameState.addMessage; // Get addMessage from gameState
+
+  switch (true) {
+    case (operation.type == 'leftClick' && !currentGameState.isFlagMode) || (operation.type == 'rightClick' && currentGameState.isFlagMode): {
+      addMessage(`Executing leftClick at (${operation.row}, ${operation.col})`);
+      const wrappedRow = (operation.row % height + height) % height;
+      const wrappedCol = (operation.col % width + width) % width;
+      const cellState = currentGameState.revealed[wrappedRow][wrappedCol];
+      const cellValue = currentGameState.field[wrappedRow][wrappedCol];
+
+      if (cellState === 'hidden') {
+        if (cellValue === 9) { // Mine
+          addMessage(`💥 Game Over at (${wrappedRow}, ${wrappedCol})`);
+          return resetGame(currentGameState); // reset(l)
+        } else { // Safe cell
+          const revealedBefore = currentGameState.revealed.flat().filter(s => s === 'revealed').length;
+          const nextGameState = revealCell(currentGameState, wrappedRow, wrappedCol);
+          const revealedAfter = nextGameState.revealed.flat().filter(s => s === 'revealed').length;
+          const revealedCount = revealedAfter - revealedBefore;
+
+          if (cellValue === 0) { // Blank cell
+            addMessage(`⬜ Revealed blank cell at (${wrappedRow}, ${wrappedCol}). Revealed ${revealedCount} cells.`);
+            return push(nextGameState, revealedCount, addMessage); // push(count)
+          } else { // Numbered cell
+            addMessage(`🔢 Revealed numbered cell ${cellValue} at (${wrappedRow}, ${wrappedCol})`);
+            return push(nextGameState, cellValue, addMessage); // push(n)
+          }
+        }
+      } else if (cellState === 'flagged') { // Left click on flagged cell
+          addMessage(`🚩 Left clicked on flagged cell at (${wrappedRow}, ${wrappedCol}). No operation.`);
+          return currentGameState; // noop
+      } else { // Left click on revealed cell
+        addMessage(`🖱️ Left clicked on revealed cell at (${wrappedRow}, ${wrappedCol}).`);
+        switch (cellValue) {
+          case 0: return pop(currentGameState, addMessage);
+          case 1: return positive(currentGameState, addMessage);
+          case 2: return duplicate(currentGameState, addMessage);
+          case 3: return add(currentGameState, addMessage);
+          case 4: return subtract(currentGameState, addMessage);
+          case 5: return multiply(currentGameState, addMessage);
+          case 6: return divide(currentGameState, addMessage);
+          case 7: return modulo(currentGameState, addMessage);
+          case 8: {
+            // perform(l)
+            addMessage(`▶️ Performing operation from stack (left click)`);
+            if (currentGameState.stack.length >= 2) {
+              const p0 = currentGameState.stack[currentGameState.stack.length - 1];
+              const p1 = currentGameState.stack[currentGameState.stack.length - 2];
+              const newStack = currentGameState.stack.slice(0, -2);
+              const nextGameState = { ...currentGameState, stack: newStack };
+              const performOperation: Operation = { type: 'leftClick', row: p1, col: p0 };
+              // Recursively call step with the new operation
+              return step({ ...nextGameState, operations: [performOperation, ...nextGameState.operations.slice(nextGameState.opIndex)], opIndex: 0 });
+            } else {
+                addMessage(`⏩ Stack underflow for perform(l)`);
+                return currentGameState; // Command error
+            }
+          }
+          default: return currentGameState; // Should not happen for 0-8
+        }
+      }
+    }
+    case (operation.type == 'rightClick' && !currentGameState.isFlagMode) || (operation.type == 'leftClick' && currentGameState.isFlagMode): {
+      addMessage(`Executing rightClick at (${operation.row}, ${operation.col})`);
+      const wrappedRow = (operation.row % height + height) % height;
+      const wrappedCol = (operation.col % width + width) % width;
+      const cellState = currentGameState.revealed[wrappedRow][wrappedCol];
+      const cellValue = currentGameState.field[wrappedRow][wrappedCol];
+
+      if (cellState === 'hidden' || cellState == 'flagged') { // Right click on hidden cell
+        addMessage(`🚩 Flagging/unflagging cell at (${wrappedRow}, ${wrappedCol})`);
+        return swap(flagCell(currentGameState, wrappedRow, wrappedCol), addMessage); // swap
+      } else if (cellState === 'revealed') { // Right click on revealed cell (Chord)
+        addMessage(`🖱️ Right clicked on revealed cell at (${wrappedRow}, ${wrappedCol}). Attempting Chord.`);
+        const adjacentFlags = countAdjacentFlags(currentGameState, wrappedRow, wrappedCol);
+        if (adjacentFlags === cellValue) { // Number matches adjacent flags
+          let nextGameState = { ...currentGameState };
+          let newlyRevealedCount = 0;
+          let sumOfRevealedValues = 0;
+          let gameOver = false;
+
+          // Attempt to reveal adjacent hidden cells
+          for (let ni = wrappedRow - 1; ni <= wrappedRow + 1; ni++) {
+            for (let nj = wrappedCol - 1; nj <= nj + 1; nj++) {
+                if (ni >= 0 && ni < nextGameState.revealed.length && nj >= 0 && nj < nextGameState.revealed[0].length) {
+                  if (nextGameState.revealed[ni][nj] === 'hidden') {
+                      const adjacentCellValue = nextGameState.field[ni][nj];
+                      if (adjacentCellValue === 9) { // Hit a mine during Chord
+                        addMessage(`💥 Game Over during Chord at (${ni}, ${nj})`);
+                        gameOver = true;
+                        break; // Exit inner loop
+                      } else {
+                        const revealedBefore = nextGameState.revealed.flat().filter(s => s === 'revealed').length;
+                        nextGameState = revealCell(nextGameState, ni, nj);
+                        const revealedAfter = nextGameState.revealed.flat().filter(s => s === 'revealed').length;
+                        newlyRevealedCount += (revealedAfter - revealedBefore);
+                        sumOfRevealedValues += adjacentCellValue;
+                      }
+                  }
+                }
+            }
+            if (gameOver) break; // Exit outer loop
+          }
+
+          if (gameOver) {
+              addMessage(`🔄 Resetting game and stack due to Chord game over.`);
+              return resetGameAndStack(currentGameState); // reset(r)
+          } else  { // Successfully revealed new cells
+              addMessage(`✅ Chord successful. Revealed ${newlyRevealedCount} new cells. Sum of values: ${sumOfRevealedValues}`);
+              return push(nextGameState, sumOfRevealedValues, addMessage); // push(sum)
+          }
+        } else { // Number does not match adjacent flags
+          addMessage(`🤷 Chord attempted but no new cells revealed.`);
+          switch (cellValue) {
+            case 0: return push(currentGameState, 0, addMessage); // push(0)
+            case 1: return not(currentGameState, addMessage);
+            case 2: return roll(currentGameState, addMessage);
+            case 3: return readInt(currentGameState, addMessage); // in(n)
+            case 4: return readChar(currentGameState, addMessage); // in(c)
+            case 5: return printInt(currentGameState, addMessage); // out(n)
+            case 6: return printChar(currentGameState, addMessage); // out(c)
+            case 7: {
+              // skip
+              addMessage(`⏭️ Skipping operations based on stack value`);
+              if (currentGameState.stack.length >= 1) {
+                const p0 = currentGameState.stack[currentGameState.stack.length - 1];
+                const newStack = currentGameState.stack.slice(0, -1);
+                let nextOpIndex = (currentGameState.opIndex + p0) % currentGameState.operations.length;
+                  // Handle negative skip values
+                  if (nextOpIndex < 0) {
+                      nextOpIndex += currentGameState.operations.length;
+                  }
+                addMessage(`⏭️ Skipping ${p0} operations. New OP index: ${nextOpIndex}`);
+                return { ...currentGameState, stack: newStack, opIndex: nextOpIndex };
+              } else {
+                  addMessage(`⏩ Stack underflow for skip`);
+                  return currentGameState; // Command error
+              }
+            }
+            case 8: {
+              // perform(r)
+              addMessage(`▶️ Performing operation from stack (right click)`);
+              if (currentGameState.stack.length >= 2) {
+                const p0 = currentGameState.stack[currentGameState.stack.length - 1];
+                const p1 = currentGameState.stack[currentGameState.stack.length - 2];
+                const newStack = currentGameState.stack.slice(0, -2);
+                const nextGameState = { ...currentGameState, stack: newStack };
+                const performOperation: Operation = { type: 'rightClick', row: p1, col: p0 };
+                // Recursively call step with the new operation
+                return step({ ...nextGameState, operations: [performOperation, ...nextGameState.operations.slice(nextGameState.opIndex)], opIndex: 0 });
+              } else {
+                  addMessage(`⏩ Stack underflow for perform(r)`);
+                  return currentGameState; // Command error
+              }
+            }
+            default: return currentGameState; // Should not happen for 0-8
+          }
+        }
+      }
+      return currentGameState; // Should not happen
+    }
+    case operation.type == 'toggleFlagMode':
+      addMessage('Executing toggleFlagMode');
+      return reverse(toggleFlagMode(currentGameState), addMessage); // reverse
+    case operation.type == 'noop':
+      addMessage('Executing noop');
+      return currentGameState; // noop
     default:
-      return gameState;
+      addMessage(`Unknown operation type: ${(operation as Operation).type}`);
+      return currentGameState;
   }
 }

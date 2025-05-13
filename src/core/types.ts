@@ -21,4 +21,6 @@ export interface GameState {
   outputString: string;
   addMessage: (message: string) => void;
   debugMessages: string[];
+  clickedRow: number | null;
+  clickedCol: number | null;
 }

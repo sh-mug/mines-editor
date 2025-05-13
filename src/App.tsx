@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import './App.css';
-import { parse } from "./core/interpreter";
+import { parse, step } from "./core/interpreter";
 import type { GameState } from './core/types';
 
 function App() {
@@ -110,6 +110,8 @@ function App() {
     outputString: '',
     addMessage: addMessage,
     debugMessages: [],
+    clickedRow: null,
+    clickedCol: null,
   });
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -165,7 +167,7 @@ function App() {
           <h2>Interpreter Controls</h2>
           <div className="interpreter-controls">
             <button>Run</button>
-            <button>Step</button>
+            <button onClick={() => setGameState(step(gameState))}>Step</button>
             <button>Reset</button>
           </div>
           {/* Board Visualizer Component */}
@@ -173,29 +175,64 @@ function App() {
           <div className="board-visualizer">
             {gameState.field.map((row, i) => (
               <div key={i} className="board-row">
-                {row.map((cell, j) => (
-                  <span key={j} className={`board-cell ${cell === 1 ? 'color-1' :
-                      cell === 2 ? 'color-2' :
-                      cell === 3 ? 'color-3' :
-                      cell === 4 ? 'color-4' :
-                      cell === 5 ? 'color-5' :
-                      cell === 6 ? 'color-6' :
-                      cell === 7 ? 'color-7' :
-                      cell === 8 ? 'color-8' :
-                      ''
-                    }`}>
-                    {cell === 0 ? '' : cell === 9 ? '💣' : cell}
-                  </span>
-                ))}
+                {row.map((cell, j) => {
+                  const cellState = gameState.revealed[i][j];
+                  let cellContent: string | number = '';
+                  if (cell === 0) {
+                    cellContent = '';
+                  } else if (cell === 9) {
+                    cellContent = '💣';
+                  } else {
+                    cellContent = cell;
+                  }
+
+                  let overlayStyle = '';
+                  let content = cellContent;
+
+                  if (cellState === 'hidden' || cellState === 'flagged') {
+                    overlayStyle = 'hidden-cell-overlay';
+                    if (cellState === 'flagged') {
+                      content = '🚩';
+                    }
+                  }
+
+                  const isClicked = gameState.clickedRow === i && gameState.clickedCol === j;
+                  const clickedStyle = isClicked ? 'clicked-cell' : '';
+
+                  return (
+                    <span key={j} className={`board-cell ${clickedStyle} ${cell === 1 ? 'color-1' :
+                        cell === 2 ? 'color-2' :
+                        cell === 3 ? 'color-3' :
+                        cell === 4 ? 'color-4' :
+                        cell === 5 ? 'color-5' :
+                        cell === 6 ? 'color-6' :
+                        cell === 7 ? 'color-7' :
+                        cell === 8 ? 'color-8' :
+                        ''
+                      }`}>
+                      {content}
+                      {overlayStyle && <div className={overlayStyle}>{content === '🚩' ? '🚩' : ''}</div>}
+                    </span>
+                  );
+                })}
               </div>
             ))}
           </div >
           {/* Debug Information Component */}
           <h2>Debug Information</h2>
           <div className="debug-information">
-            {messages.map((message, index) => (
-              <div key={index}>{message}</div>
-            ))}
+            <h3>Stack</h3>
+            <div className="stack-info">{gameState.stack.join(', ')}</div>
+            <h3>Messages</h3>
+            <div className="message-info" style={{ overflowY: 'auto', height: '200px' }} ref={el => {
+              if (el) {
+                el.scrollTop = el.scrollHeight;
+              }
+            }}>
+              {messages.map((message, index) => (
+                <div key={index}>{message}</div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

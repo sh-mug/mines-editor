@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { flagCell, handleLeftClick, handleRightClick, parse, revealCell, toggleFlagMode } from './interpreter';
+import { flagCell, handleLeftClick, handleRightClick, parse, revealCell, step, toggleFlagMode } from './interpreter';
 
 describe('parse', () => {
   it('should parse a simple board', () => {
@@ -28,6 +28,8 @@ describe('parse', () => {
       outputString: '',
       addMessage: expect.any(Function),
       debugMessages: [],
+      clickedRow: null,
+      clickedCol: null,
     });
   });
 
@@ -107,6 +109,8 @@ describe('parse', () => {
       outputString: '',
       addMessage: expect.any(Function),
       debugMessages: [],
+      clickedRow: null,
+      clickedCol: null,
     });
   });
 
@@ -151,6 +155,8 @@ describe('parse', () => {
       outputString: '',
       addMessage: expect.any(Function),
       debugMessages: [],
+      clickedRow: null,
+      clickedCol: null,
     });
   });
 
@@ -272,5 +278,178 @@ describe('parse', () => {
     expect(newResult.isFlagMode).toBe(true);
     const newerResult = toggleFlagMode(newResult);
     expect(newerResult.isFlagMode).toBe(false);
+  });
+});
+
+describe('step', () => {
+  it('should increment opIndex', () => {
+    const codeString = `
+.....
+.*...
+.....
+0,0
+1,0
+2,0
+`;
+    const gameState = parse(codeString, () => {});
+    expect(gameState.opIndex).toBe(0);
+    const nextGameState = step(gameState);
+    expect(nextGameState.opIndex).toBe(1);
+    const finalGameState = step(nextGameState);
+    expect(finalGameState.opIndex).toBe(2);
+  });
+
+  it('should reveal a cell when left clicked', () => {
+    const codeString = `
+.....
+.....
+.....
+0,0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should reset the game when a mine is clicked', () => {
+    const codeString = `
+*....
+.....
+.....
+0,0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed).toEqual([
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+    ]);
+  });
+
+  it('should not change the game state if the stack is empty', () => {
+    const codeString = `
+.....
+.....
+.....
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState).toEqual(gameState);
+  });
+
+  it('should toggle flag mode when toggleFlagMode command is executed', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+`;
+    const gameState = parse(codeString, () => {});
+    expect(gameState.isFlagMode).toBe(false);
+    const nextGameState = step(gameState);
+    expect(nextGameState.isFlagMode).toBe(true);
+  });
+
+  it('should flag a cell when rightClick command is executed', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should do nothing when noop command is executed', () => {
+    const codeString = `
+.....
+.....
+.....
+
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState).toEqual(gameState);
+  });
+
+  it('should call handleLeftClick when leftClick command is executed', () => {
+    const codeString = `
+.....
+.....
+.....
+0,0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should call handleRightClick when rightClick command is executed', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should call revealCell when handleLeftClick is called and isFlagMode is false', () => {
+    const codeString = `
+.....
+.....
+.....
+0,0
+`;
+    const gameState = parse(codeString, () => {});
+    gameState.isFlagMode = false;
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should call flagCell when handleLeftClick is called and isFlagMode is true', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+0,0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    const finalGameState = step(nextGameState);
+    expect(finalGameState.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should call flagCell when handleRightClick is called and isFlagMode is false', () => {
+    const codeString = `
+.....
+.....
+.....
+0;0
+`;
+    const gameState = parse(codeString, () => {});
+    gameState.isFlagMode = false;
+    const nextGameState = step(gameState);
+    expect(nextGameState.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should call revealCell when handleRightClick is called and isFlagMode is true', () => {
+    const codeString = `
+.....
+.....
+.....
+!
+0;0
+`;
+    const gameState = parse(codeString, () => {});
+    const nextGameState = step(gameState);
+    const finalGameState = step(nextGameState);
+    expect(finalGameState.revealed[0][0]).toBe('revealed');
   });
 });
