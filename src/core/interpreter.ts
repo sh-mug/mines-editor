@@ -19,6 +19,26 @@ import {
 } from './commands';
 import type { CellState, Field, GameState, Operation, Revealed } from './types';
 
+function checkTerminationCondition(state: GameState): boolean {
+  // すべての安全なマスが開かれたかチェック
+  const allSafeCellsRevealed = state.everRevealed.every((row, rowIndex) =>
+    row.every((revealed, colIndex) => {
+      const cellValue = state.field[rowIndex][colIndex];
+      return cellValue !== 9 ? revealed : true;
+    })
+  );
+
+  // すべての地雷マスが開かれたかチェック
+  const allMineCellsRevealed = state.everRevealed.every((row, rowIndex) =>
+    row.every((revealed, colIndex) => {
+      const cellValue = state.field[rowIndex][colIndex];
+      return cellValue === 9 ? revealed : true;
+    })
+  );
+
+  return allSafeCellsRevealed || allMineCellsRevealed;
+}
+
 function countAdjacentFlags(gameState: GameState, row: number, col: number): number {
   let count = 0;
   for (let ni = row - 1; ni <= row + 1; ni++) {
@@ -187,6 +207,10 @@ export function parse(codeString: string, addMessage: (message: string) => void)
     debugMessages: [],
     clickedRow: null,
     clickedCol: null,
+    everRevealed: revealed.map(row => row.map(() => false)),
+    safeCellsCount: field.flat().filter(cell => cell !== 9).length,
+    mineCellsCount: field.flat().filter(cell => cell === 9).length,
+    isFinished: false,
   };
 }
 
@@ -222,6 +246,20 @@ function resetGameAndStack(gameState: GameState): GameState {
 }
 
 export function step(gameState: GameState): GameState {
+  const everRevealed = gameState.everRevealed.map((row, rowIndex) =>
+    row.map((cell, colIndex) => {
+      return gameState.revealed[rowIndex][colIndex] === 'revealed' ? true : cell;
+    })
+  );
+  const isFinished = checkTerminationCondition({ ...gameState, everRevealed });
+  gameState = { ...gameState, everRevealed, isFinished };
+
+  if (gameState.isFinished) {
+    const addMessage = gameState.addMessage;
+    addMessage('Game is already finished. No operation performed.');
+    return gameState; // No operation if the game is already finished
+  }
+
   const height = gameState.field.length;
   const width = gameState.field[0].length;
 

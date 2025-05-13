@@ -23,4 +23,8 @@ export interface GameState {
   debugMessages: string[];
   clickedRow: number | null;
   clickedCol: number | null;
+  everRevealed: boolean[][]; // 各マスが一度でも開かれたかどうか
+  safeCellsCount: number; // 安全なマスの総数
+  mineCellsCount: number; // 地雷マスの総数
+  isFinished: boolean; // ゲームが終了したかどうか
 }

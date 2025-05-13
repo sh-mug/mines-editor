@@ -112,6 +112,10 @@ function App() {
     debugMessages: [],
     clickedRow: null,
     clickedCol: null,
+    everRevealed: [[]],
+    safeCellsCount: 0,
+    mineCellsCount: 0,
+    isFinished: false,
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [isRunning, setIsRunning] = useState(false);
@@ -146,6 +150,10 @@ function App() {
       const intervalId = setInterval(() => {
         setGameState(step(gameState));
       }, interval);
+
+      if (gameState.isFinished) {
+        setIsRunning(false);
+      }
 
       return () => clearInterval(intervalId);
     }

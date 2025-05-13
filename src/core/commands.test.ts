@@ -15,6 +15,10 @@ const initialGameState: GameState = {
   debugMessages: [],
   clickedRow: null,
   clickedCol: null,
+  everRevealed: [[]],
+  safeCellsCount: 0,
+  mineCellsCount: 0,
+  isFinished: false,
 };
 
 describe('Commands', () => {

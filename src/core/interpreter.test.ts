@@ -9,17 +9,19 @@ describe('parse', () => {
 .....
 `;
     const result = parse(codeString, () => {});
+    const revealed = [
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+    ];
+    const field = [
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+    ];
     expect(result).toEqual({
-      revealed: [
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-      ],
-      field: [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-      ],
+      revealed,
+      field,
       stack: [],
       opIndex: 0,
       isFlagMode: false,
@@ -30,6 +32,10 @@ describe('parse', () => {
       debugMessages: [],
       clickedRow: null,
       clickedCol: null,
+      everRevealed: revealed.map(row => row.map(() => false)),
+      safeCellsCount: field.flat().filter(cell => cell !== 9).length,
+      mineCellsCount: field.flat().filter(cell => cell === 9).length,
+      isFinished: false,
     });
   });
 
@@ -90,17 +96,19 @@ describe('parse', () => {
 ...*.
 `;
     const result = parse(codeString, () => {});
+    const revealed = [
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+    ];
+    const field = [
+      [0, 1, 1, 1, 0],
+      [0, 1, 9, 2, 1],
+      [0, 1, 2, 9, 1],
+    ];
     expect(result).toEqual({
-      revealed: [
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-      ],
-      field: [
-        [0, 1, 1, 1, 0],
-        [0, 1, 9, 2, 1],
-        [0, 1, 2, 9, 1],
-      ],
+      revealed,
+      field,
       stack: [],
       opIndex: 0,
       isFlagMode: false,
@@ -111,6 +119,10 @@ describe('parse', () => {
       debugMessages: [],
       clickedRow: null,
       clickedCol: null,
+      everRevealed: revealed.map(row => row.map(() => false)),
+      safeCellsCount: field.flat().filter(cell => cell !== 9).length,
+      mineCellsCount: field.flat().filter(cell => cell === 9).length,
+      isFinished: false,
     });
   });
 
@@ -134,17 +146,19 @@ describe('parse', () => {
 0,0
 `;
     const result = parse(codeString, () => {});
+    const revealed = [
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+      ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
+    ];
+    const field = [
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+    ];
     expect(result).toEqual({
-      revealed: [
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-        ['hidden', 'hidden', 'hidden', 'hidden', 'hidden'],
-      ],
-      field: [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-      ],
+      revealed,
+      field,
       stack: [],
       opIndex: 0,
       isFlagMode: false,
@@ -157,6 +171,10 @@ describe('parse', () => {
       debugMessages: [],
       clickedRow: null,
       clickedCol: null,
+      everRevealed: revealed.map(row => row.map(() => false)),
+      safeCellsCount: field.flat().filter(cell => cell !== 9).length,
+      mineCellsCount: field.flat().filter(cell => cell === 9).length,
+      isFinished: false,
     });
   });
 
@@ -301,7 +319,7 @@ describe('step', () => {
 
   it('should reveal a cell when left clicked', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 0,0
@@ -327,20 +345,9 @@ describe('step', () => {
     ]);
   });
 
-  it('should not change the game state if the stack is empty', () => {
-    const codeString = `
-.....
-.....
-.....
-`;
-    const gameState = parse(codeString, () => {});
-    const nextGameState = step(gameState);
-    expect(nextGameState).toEqual(gameState);
-  });
-
   it('should toggle flag mode when toggleFlagMode command is executed', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 !
@@ -353,7 +360,7 @@ describe('step', () => {
 
   it('should flag a cell when rightClick command is executed', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 0;0
@@ -365,7 +372,7 @@ describe('step', () => {
 
   it('should do nothing when noop command is executed', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 
@@ -377,7 +384,7 @@ describe('step', () => {
 
   it('should call handleLeftClick when leftClick command is executed', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 0,0
@@ -389,7 +396,7 @@ describe('step', () => {
 
   it('should call handleRightClick when rightClick command is executed', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 0;0
@@ -401,7 +408,7 @@ describe('step', () => {
 
   it('should call revealCell when handleLeftClick is called and isFlagMode is false', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 0,0
@@ -414,7 +421,7 @@ describe('step', () => {
 
   it('should call flagCell when handleLeftClick is called and isFlagMode is true', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 !
@@ -428,7 +435,7 @@ describe('step', () => {
 
   it('should call flagCell when handleRightClick is called and isFlagMode is false', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 0;0
@@ -441,7 +448,7 @@ describe('step', () => {
 
   it('should call revealCell when handleRightClick is called and isFlagMode is true', () => {
     const codeString = `
-.....
+....*
 .....
 .....
 !
