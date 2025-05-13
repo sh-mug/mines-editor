@@ -22,7 +22,7 @@ function popInternal(gameState: GameState, numPop: number, addMessage: (message:
 // スタックに値をプッシュ
 // エラー条件：なし
 export function push(gameState: GameState, value: number, addMessage: (message: string) => void): GameState {
-  addMessage(`☑ Pushed ${value} to stack`);
+  addMessage(`✅ Pushed ${value} to stack`);
   return pushInternal({ ...gameState }, value);
 }
 
@@ -31,7 +31,7 @@ export function push(gameState: GameState, value: number, addMessage: (message: 
 export function pop(gameState: GameState, addMessage: (message: string) => void): GameState {
   const { gameState: newGameState, value } = popInternal(gameState, 1, addMessage);
   if (value !== undefined) {
-    addMessage(`☑ Popped ${value} from stack`);
+    addMessage(`✅ Popped ${value} from stack`);
   }
   return newGameState;
 }
@@ -43,7 +43,7 @@ export function swap(gameState: GameState, addMessage: (message: string) => void
   const newStack = [...poppedValues.gameState.stack];
   if (poppedValues.value) {
     newStack.push(poppedValues.value[0], poppedValues.value[1]);
-    addMessage(`☑ Swapped ${poppedValues.value[0]} and ${poppedValues.value[1]}`);
+    addMessage(`✅ Swapped ${poppedValues.value[0]} and ${poppedValues.value[1]}`);
     return { ...poppedValues.gameState, stack: newStack };
   }
   return poppedValues.gameState;
@@ -52,7 +52,7 @@ export function swap(gameState: GameState, addMessage: (message: string) => void
 // スタック全体の要素を逆順に並び替える
 // エラー条件：なし
 export function reverse(gameState: GameState, addMessage: (message: string) => void): GameState {
-  addMessage(`☑ Reversed stack`);
+  addMessage(`✅ Reversed stack`);
   const newStack = [...gameState.stack].reverse();
   return { ...gameState, stack: newStack };
 }
@@ -62,7 +62,7 @@ export function reverse(gameState: GameState, addMessage: (message: string) => v
 export function duplicate(gameState: GameState, addMessage: (message: string) => void): GameState {
   const { gameState: newGameState, value } = popInternal(gameState, 1, addMessage);
   if (value !== undefined) {
-    addMessage(`☑ Duplicated ${value} on stack`);
+    addMessage(`✅ Duplicated ${value} on stack`);
     return pushInternal(pushInternal({ ...newGameState }, value[0]), value[0]);
   }
   return newGameState;
@@ -97,7 +97,7 @@ export function roll(gameState: GameState, addMessage: (message: string) => void
         ...newGameState.stack.slice(0, -depth),
         ...rotatedSlice,
       ];
-      addMessage(`☑ Rolled stack with depth ${depth} and offset ${offset}`);
+      addMessage(`✅ Rolled stack with depth ${depth} and offset ${offset}`);
       return { ...newGameState, stack: newStack };
     // depth が負の場合
     } else if (depth < 0) {
@@ -113,7 +113,7 @@ export function roll(gameState: GameState, addMessage: (message: string) => void
         ...rotatedSlice,
         ...newGameState.stack.slice(-depth),
       ];
-      addMessage(`☑ Rolled stack with depth ${depth} and offset ${offset}`);
+      addMessage(`✅ Rolled stack with depth ${depth} and offset ${offset}`);
       return { ...newGameState, stack: newStack };
     // depth がゼロの場合
     } else {
@@ -130,7 +130,7 @@ export function add(gameState: GameState, addMessage: (message: string) => void)
   const { gameState: newGameState, value } = popInternal(gameState, 2, addMessage);
   if (value) {
     const sum = value[1] + value[0];
-    addMessage(`☑ Added ${value[1]} and ${value[0]} to get ${sum}`);
+    addMessage(`✅ Added ${value[1]} and ${value[0]} to get ${sum}`);
     return pushInternal({ ...newGameState }, sum);
   }
   return newGameState;
@@ -142,7 +142,7 @@ export function subtract(gameState: GameState, addMessage: (message: string) => 
   const { gameState: newGameState, value } = popInternal(gameState, 2, addMessage);
   if (value) {
     const diff = value[1] - value[0];
-    addMessage(`☑ Subtracted ${value[0]} from ${value[1]} to get ${diff}`);
+    addMessage(`✅ Subtracted ${value[0]} from ${value[1]} to get ${diff}`);
     return pushInternal({ ...newGameState }, diff);
   }
   return newGameState;
@@ -154,7 +154,7 @@ export function multiply(gameState: GameState, addMessage: (message: string) => 
   const { gameState: newGameState, value } = popInternal(gameState, 2, addMessage);
   if (value) {
     const product = value[1] * value[0];
-    addMessage(`☑ Multiplied ${value[1]} and ${value[0]} to get ${product}`);
+    addMessage(`✅ Multiplied ${value[1]} and ${value[0]} to get ${product}`);
     return pushInternal({ ...newGameState }, product);
   }
   return newGameState;
@@ -170,7 +170,7 @@ export function divide(gameState: GameState, addMessage: (message: string) => vo
   const { gameState: newGameState, value } = popInternal(gameState, 2, addMessage);
   if (value) {
     const quotient = Math.floor(value[1] / value[0]);
-    addMessage(`☑ Divided ${value[1]} by ${value[0]} to get ${quotient}`);
+    addMessage(`✅ Divided ${value[1]} by ${value[0]} to get ${quotient}`);
     return pushInternal({ ...newGameState }, quotient);
   }
   return newGameState;
@@ -186,7 +186,7 @@ export function modulo(gameState: GameState, addMessage: (message: string) => vo
   const { gameState: newGameState, value } = popInternal(gameState, 2, addMessage);
   if (value) {
     const mod = value[1] % value[0];
-    addMessage(`☑ Modulo ${value[1]} by ${value[0]} to get ${mod}`);
+    addMessage(`✅ Modulo ${value[1]} by ${value[0]} to get ${mod}`);
     return pushInternal({ ...newGameState }, mod);
   }
   return newGameState;
@@ -198,7 +198,7 @@ export function positive(gameState: GameState, addMessage: (message: string) => 
   const { gameState: newGameState, value } = popInternal(gameState, 1, addMessage);
   if (value) {
     const pos = value[0] > 0 ? 1 : 0;
-    addMessage(`☑ Positive check: ${value[0]} is ${pos ? 'positive' : 'not positive'}`);
+    addMessage(`✅ Positive check: ${value[0]} is ${pos ? 'positive' : 'not positive'}`);
     return pushInternal({ ...newGameState }, pos);
   }
   return newGameState;
@@ -210,7 +210,7 @@ export function not(gameState: GameState, addMessage: (message: string) => void)
   const { gameState: newGameState, value } = popInternal(gameState, 1, addMessage);
   if (value) {
     const neg = value[0] === 0 ? 1 : 0;
-    addMessage(`☑ Not check: ${value[0]} is ${neg ? 'zero' : 'non-zero'}`);
+    addMessage(`✅ Not check: ${value[0]} is ${neg ? 'zero' : 'non-zero'}`);
     return pushInternal({ ...newGameState }, neg);
   }
   return newGameState;
@@ -226,7 +226,7 @@ export function readInt(gameState: GameState, addMessage: (message: string) => v
   }
   const intValue = parseInt(match[1], 10);
   const newInputString = gameState.inputString.slice(match[0].length);
-  addMessage(`☑ Read integer: ${intValue}`);
+  addMessage(`✅ Read integer: ${intValue}`);
   return {
     ...gameState,
     inputString: newInputString,
@@ -243,7 +243,7 @@ export function readChar(gameState: GameState, addMessage: (message: string) => 
   }
   const char = gameState.inputString.charCodeAt(0);
   const newInputString = gameState.inputString.slice(1);
-  addMessage(`☑ Read character: ${String.fromCharCode(char)} (${char})`);
+  addMessage(`✅ Read character: ${String.fromCharCode(char)} (${char})`);
   return {
     ...gameState,
     inputString: newInputString,
@@ -257,7 +257,7 @@ export function printInt(gameState: GameState, addMessage: (message: string) => 
   const { gameState: newGameState, value } = popInternal(gameState, 1, addMessage);
   if (value) {
     let newOutputString = gameState.outputString;
-    addMessage(`☑ Printed integer: ${value[0]}`);
+    addMessage(`✅ Printed integer: ${value[0]}`);
     newOutputString += `${value[0]}`;
     return { ...newGameState, outputString: newOutputString };
   }
@@ -275,7 +275,7 @@ export function printChar(gameState: GameState, addMessage: (message: string) =>
   if (value) {
     let newOutputString = gameState.outputString;
     const char = String.fromCodePoint(value[0]);
-    addMessage(`☑ Printed character: ${char} (${value[0]})`);
+    addMessage(`✅ Printed character: ${char} (${value[0]})`);
     newOutputString += char;
     return { ...newGameState, outputString: newOutputString };
   }

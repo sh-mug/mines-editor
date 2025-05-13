@@ -198,7 +198,7 @@ function App() {
             </button>
             <button onClick={() => setGameState(step(gameState))}>Step</button>
             <button onClick={handleLoad}>Reset</button>
-            <label>Speed (ms)</label>
+            <label>Speed</label>
             <input
               type="range"
               min="50"
