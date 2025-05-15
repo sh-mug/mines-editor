@@ -365,7 +365,7 @@ export function step(gameState: GameState): GameState {
 
           // Attempt to reveal adjacent hidden cells
           for (let ni = wrappedRow - 1; ni <= wrappedRow + 1; ni++) {
-            for (let nj = wrappedCol - 1; nj <= nj + 1; nj++) {
+            for (let nj = wrappedCol - 1; nj <= wrappedCol + 1; nj++) {
                 if (ni >= 0 && ni < nextGameState.revealed.length && nj >= 0 && nj < nextGameState.revealed[0].length) {
                   if (nextGameState.revealed[ni][nj] === 'hidden') {
                       const adjacentCellValue = nextGameState.field[ni][nj];
