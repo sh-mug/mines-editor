@@ -332,7 +332,7 @@ export function step(gameState: GameState): GameState {
               const p1 = currentGameState.stack[currentGameState.stack.length - 2];
               const newStack = currentGameState.stack.slice(0, -2);
               const nextGameState = { ...currentGameState, stack: newStack };
-              const performOperation: Operation = { type: 'leftClick', row: p1, col: p0 };
+              const performOperation: Operation = { type: 'leftClick', col: p1, row: p0 };
               // Recursively call step with the new operation
               return step({ ...nextGameState, operations: [performOperation, ...nextGameState.operations.slice(nextGameState.opIndex)], opIndex: 0 });
             } else {
@@ -431,7 +431,7 @@ export function step(gameState: GameState): GameState {
                 const p1 = currentGameState.stack[currentGameState.stack.length - 2];
                 const newStack = currentGameState.stack.slice(0, -2);
                 const nextGameState = { ...currentGameState, stack: newStack };
-                const performOperation: Operation = { type: 'rightClick', row: p1, col: p0 };
+                const performOperation: Operation = { type: 'rightClick', col: p1, row: p0 };
                 // Recursively call step with the new operation
                 return step({ ...nextGameState, operations: [performOperation, ...nextGameState.operations.slice(nextGameState.opIndex)], opIndex: 0 });
               } else {

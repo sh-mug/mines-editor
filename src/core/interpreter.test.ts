@@ -476,4 +476,21 @@ describe('step', () => {
     }
     expect(gameState.stack).toEqual([1, 0, 2]);
   });
+
+  it('should perform p1;p0 when perform(r) is called', () => {
+    const codeString = `
+..***
+..*.*
+..***
+3,1 # push 8
+1,0 # push 2
+3;1 # perform(r): 8;2 is performed and (3,2) is flagged
+0,1
+`;
+    var gameState = parse(codeString, () => {});
+    while (!gameState.isFinished) {
+      gameState = step(gameState);
+    }
+    expect(gameState.revealed[2][3]).toBe('flagged');
+  });
 });
