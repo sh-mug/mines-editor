@@ -286,7 +286,7 @@ export function step(gameState: GameState): GameState {
 
   switch (true) {
     case (operation.type == 'leftClick' && !currentGameState.isFlagMode) || (operation.type == 'rightClick' && currentGameState.isFlagMode): {
-      addMessage(`Executing leftClick at (${operation.row}, ${operation.col})`);
+      addMessage(`Executing leftClick at (${operation.col}, ${operation.row})`);
       const wrappedRow = (operation.row % height + height) % height;
       const wrappedCol = (operation.col % width + width) % width;
       const cellState = currentGameState.revealed[wrappedRow][wrappedCol];
@@ -294,7 +294,7 @@ export function step(gameState: GameState): GameState {
 
       if (cellState === 'hidden') {
         if (cellValue === 9) { // Mine
-          addMessage(`💥 Game Over at (${wrappedRow}, ${wrappedCol})`);
+          addMessage(`💥 Game Over at (${wrappedCol}, ${wrappedRow})`);
           return resetGame(currentGameState); // reset(l)
         } else { // Safe cell
           const revealedBefore = currentGameState.revealed.flat().filter(s => s === 'revealed').length;
@@ -303,18 +303,18 @@ export function step(gameState: GameState): GameState {
           const revealedCount = revealedAfter - revealedBefore;
 
           if (cellValue === 0) { // Blank cell
-            addMessage(`⬜ Revealed blank cell at (${wrappedRow}, ${wrappedCol}). Revealed ${revealedCount} cells.`);
+            addMessage(`⬜ Revealed blank cell at (${wrappedCol}, ${wrappedRow}). Revealed ${revealedCount} cells.`);
             return push(nextGameState, revealedCount, addMessage); // push(count)
           } else { // Numbered cell
-            addMessage(`🔢 Revealed numbered cell ${cellValue} at (${wrappedRow}, ${wrappedCol})`);
+            addMessage(`🔢 Revealed numbered cell ${cellValue} at (${wrappedCol}, ${wrappedRow})`);
             return push(nextGameState, cellValue, addMessage); // push(n)
           }
         }
       } else if (cellState === 'flagged') { // Left click on flagged cell
-          addMessage(`🚩 Left clicked on flagged cell at (${wrappedRow}, ${wrappedCol}). No operation.`);
+          addMessage(`🚩 Left clicked on flagged cell at (${wrappedCol}, ${wrappedRow}). No operation.`);
           return currentGameState; // noop
       } else { // Left click on revealed cell
-        addMessage(`🖱️ Left clicked on revealed cell at (${wrappedRow}, ${wrappedCol}).`);
+        addMessage(`🖱️ Left clicked on revealed cell at (${wrappedCol}, ${wrappedRow}).`);
         switch (cellValue) {
           case 0: return pop(currentGameState, addMessage);
           case 1: return positive(currentGameState, addMessage);
@@ -345,17 +345,17 @@ export function step(gameState: GameState): GameState {
       }
     }
     case (operation.type == 'rightClick' && !currentGameState.isFlagMode) || (operation.type == 'leftClick' && currentGameState.isFlagMode): {
-      addMessage(`Executing rightClick at (${operation.row}, ${operation.col})`);
+      addMessage(`Executing rightClick at (${operation.col}, ${operation.row})`);
       const wrappedRow = (operation.row % height + height) % height;
       const wrappedCol = (operation.col % width + width) % width;
       const cellState = currentGameState.revealed[wrappedRow][wrappedCol];
       const cellValue = currentGameState.field[wrappedRow][wrappedCol];
 
       if (cellState === 'hidden' || cellState == 'flagged') { // Right click on hidden cell
-        addMessage(`🚩 Flagging/unflagging cell at (${wrappedRow}, ${wrappedCol})`);
+        addMessage(`🚩 Flagging/unflagging cell at (${wrappedCol}, ${wrappedRow})`);
         return swap(flagCell(currentGameState, wrappedRow, wrappedCol), addMessage); // swap
       } else if (cellState === 'revealed') { // Right click on revealed cell (Chord)
-        addMessage(`🖱️ Right clicked on revealed cell at (${wrappedRow}, ${wrappedCol}). Attempting Chord.`);
+        addMessage(`🖱️ Right clicked on revealed cell at (${wrappedCol}, ${wrappedRow}). Attempting Chord.`);
         const adjacentFlags = countAdjacentFlags(currentGameState, wrappedRow, wrappedCol);
         let nextGameState = { ...currentGameState };
         let newlyRevealedCount = 0;
