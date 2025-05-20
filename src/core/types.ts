@@ -5,8 +5,8 @@ export type Revealed = CellState[][];
 export type Field = number[][];
 
 export type Operation =
-  | { type: 'leftClick'; row: number; col: number }
-  | { type: 'rightClick'; row: number; col: number }
+  | { type: 'leftClick'; col: number; row: number }
+  | { type: 'rightClick'; col: number; row: number }
   | { type: 'toggleFlagMode' }
   | { type: 'noop' };
 
