@@ -357,12 +357,12 @@ export function step(gameState: GameState): GameState {
       } else if (cellState === 'revealed') { // Right click on revealed cell (Chord)
         addMessage(`🖱️ Right clicked on revealed cell at (${wrappedRow}, ${wrappedCol}). Attempting Chord.`);
         const adjacentFlags = countAdjacentFlags(currentGameState, wrappedRow, wrappedCol);
-        if (adjacentFlags === cellValue) { // Number matches adjacent flags
-          let nextGameState = { ...currentGameState };
-          let newlyRevealedCount = 0;
-          let sumOfRevealedValues = 0;
-          let gameOver = false;
+        let nextGameState = { ...currentGameState };
+        let newlyRevealedCount = 0;
+        let sumOfRevealedValues = 0;
+        let gameOver = false;
 
+        if (adjacentFlags === cellValue) { // Number matches adjacent flags
           // Attempt to reveal adjacent hidden cells
           for (let ni = wrappedRow - 1; ni <= wrappedRow + 1; ni++) {
             for (let nj = wrappedCol - 1; nj <= wrappedCol + 1; nj++) {
@@ -385,7 +385,9 @@ export function step(gameState: GameState): GameState {
             }
             if (gameOver) break; // Exit outer loop
           }
+        }
 
+        if (newlyRevealedCount > 0) {
           if (gameOver) {
               addMessage(`🔄 Resetting game and stack due to Chord game over.`);
               return resetGameAndStack(currentGameState); // reset(r)

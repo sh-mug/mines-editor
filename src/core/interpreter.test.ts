@@ -459,4 +459,21 @@ describe('step', () => {
     const finalGameState = step(nextGameState);
     expect(finalGameState.revealed[0][0]).toBe('revealed');
   });
+
+ it('should not call "chord" command when no adjacent cells are revealed', () => {
+    const codeString = `
+...
+*..
+0,0
+0;1
+0;0 # reveal 2 cells and push 2
+0;0 # should be "not"
+2,0
+`;
+    var gameState = parse(codeString, () => {});
+    while (!gameState.isFinished) {
+      gameState = step(gameState);
+    }
+    expect(gameState.stack).toEqual([1, 0, 2]);
+  });
 });
