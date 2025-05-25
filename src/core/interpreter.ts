@@ -245,7 +245,7 @@ function resetGameAndStack(gameState: GameState): GameState {
   };
 }
 
-export function step(gameState: GameState): GameState {
+export function step(gameState: GameState, specificOperation: (Operation | null) = null): GameState {
   const everRevealed = gameState.everRevealed.map((row, rowIndex) =>
     row.map((cell, colIndex) => {
       return gameState.revealed[rowIndex][colIndex] === 'revealed' ? true : cell;
@@ -264,20 +264,25 @@ export function step(gameState: GameState): GameState {
   const width = gameState.field[0].length;
 
   if (gameState.operations.length <= gameState.opIndex) {
-    gameState.opIndex = 0; // Reset opIndex if it exceeds the length of operations
-    return gameState;
+    const newOpIndex = gameState.opIndex % gameState.operations.length; // Reset opIndex if it exceeds the length of operations
+    return { ...gameState, opIndex: newOpIndex }; // No operation if opIndex exceeds operations length
   }
-
+  // Prepare current game state and determine the operation to execute
   let currentGameState = { 
     ...gameState, 
     clickedRow: null as number | null, 
     clickedCol: null as number | null, 
   };
-  const operation = currentGameState.operations[currentGameState.opIndex];
+  const operation = specificOperation ?? currentGameState.operations[currentGameState.opIndex];
 
-  // Increment opIndex before executing the operation
-  currentGameState.opIndex = (currentGameState.opIndex + 1) % currentGameState.operations.length;
-
+  // Only increment opIndex if we're not executing a designated operation
+  if (!specificOperation) {
+    currentGameState = { 
+      ...currentGameState, 
+      opIndex: (currentGameState.opIndex + 1) % currentGameState.operations.length 
+    };
+  }
+  
   if (operation.type === 'leftClick' || operation.type === 'rightClick') {
     currentGameState = { ...currentGameState, clickedRow: operation.row, clickedCol: operation.col };
   }
@@ -334,7 +339,7 @@ export function step(gameState: GameState): GameState {
               const nextGameState = { ...currentGameState, stack: newStack };
               const performOperation: Operation = { type: 'leftClick', col: p1, row: p0 };
               // Recursively call step with the new operation
-              return step({ ...nextGameState, operations: [performOperation, ...nextGameState.operations.slice(nextGameState.opIndex)], opIndex: 0 });
+              return step(nextGameState, performOperation);
             } else {
                 addMessage(`⏩ Stack underflow for perform(l)`);
                 return currentGameState; // Command error
@@ -433,7 +438,7 @@ export function step(gameState: GameState): GameState {
                 const nextGameState = { ...currentGameState, stack: newStack };
                 const performOperation: Operation = { type: 'rightClick', col: p1, row: p0 };
                 // Recursively call step with the new operation
-                return step({ ...nextGameState, operations: [performOperation, ...nextGameState.operations.slice(nextGameState.opIndex)], opIndex: 0 });
+                return step(nextGameState, performOperation);
               } else {
                   addMessage(`⏩ Stack underflow for perform(r)`);
                   return currentGameState; // Command error

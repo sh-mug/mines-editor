@@ -376,10 +376,11 @@ describe('step', () => {
 .....
 .....
 
+0,0
 `;
     const gameState = parse(codeString, () => {});
     const nextGameState = step(gameState);
-    expect(nextGameState).toEqual(gameState);
+    expect(nextGameState).toEqual({ ...gameState, opIndex: 1 });
   });
 
   it('should call handleLeftClick when leftClick command is executed', () => {
@@ -492,5 +493,57 @@ describe('step', () => {
       gameState = step(gameState);
     }
     expect(gameState.revealed[2][3]).toBe('flagged');
+  });
+
+  it('should reveal a cell when step is called with a designated leftClick operation', () => {
+    const codeString = `
+....*
+.....
+.....
+-1;0
+`;
+    const gameState = parse(codeString, () => {});
+    const specificOperation = { type: 'leftClick' as 'leftClick', row: 0, col: 0 };
+    const nextGameState = step(gameState, specificOperation);
+    expect(nextGameState.revealed[0][0]).toBe('revealed');
+  });
+
+  it('should flag a cell when step is called with a designated rightClick operation', () => {
+    const codeString = `
+....*
+.....
+.....
+-1;0
+`;
+    const gameState = parse(codeString, () => {});
+    const specificOperation = { type: 'rightClick' as 'rightClick', row: 0, col: 0 };
+    const nextGameState = step(gameState, specificOperation);
+    expect(nextGameState.revealed[0][0]).toBe('flagged');
+  });
+
+  it('should skip to an appropriate operation when skip is called by perform(r)', () => {
+    const codeString = `
+*****
+*.*.*
+.****
+*....
+***..
+1,3
+3,4
+2,3 # push 5
+3,3
+0,2
+3,3 # push 1
+3,1
+1,1
+3,3 # push 1
+3;1 # perform(r): (1,1) is right-clicked and skip to OP=4
+-1,-1
+`;
+    var gameState = parse(codeString, () => {});
+    for (let i = 0; i < 10; i++) {
+      gameState = step(gameState);
+    }
+    expect(gameState.opIndex).toBe(4); // Should skip to the operation after the perform(r)
   });
 });
