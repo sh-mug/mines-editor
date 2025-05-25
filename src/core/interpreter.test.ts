@@ -520,4 +520,30 @@ describe('step', () => {
     const nextGameState = step(gameState, specificOperation);
     expect(nextGameState.revealed[0][0]).toBe('flagged');
   });
+
+  it('should skip to an appropriate operation when skip is called by perform(r)', () => {
+    const codeString = `
+*****
+*.*.*
+.****
+*....
+***..
+1,3
+3,4
+2,3 # push 5
+3,3
+0,2
+3,3 # push 1
+3,1
+1,1
+3,3 # push 1
+3;1 # perform(r): (1,1) is right-clicked and skip to OP=4
+-1,-1
+`;
+    var gameState = parse(codeString, () => {});
+    for (let i = 0; i < 10; i++) {
+      gameState = step(gameState);
+    }
+    expect(gameState.opIndex).toBe(4); // Should skip to the operation after the perform(r)
+  });
 });
